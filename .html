@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>BumpToBloom — Your Parenting Companion</title>
+<style>
+:root{--sage:#3F6D4E;--sage-dark:#2E5238;--sage-light:#E7F0E9;--gold:#EFA65D;--blush:#F6DCD9;--blush-dark:#8A4B45;--ink:#2B3A2F;--muted:#6B7A70;--bg:#FFFBF6;--line:#EFE4D9;--sand:#B8A99C;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+.font-display{font-family:Georgia,'Times New Roman',serif;}
+::-webkit-scrollbar{display:none;}
+*{scrollbar-width:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input{font-family:inherit;}
+.fade-up{animation:fadeUp .35s ease-out;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.app-shell{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;box-shadow:0 0 60px rgba(63,109,78,0.08);position:relative;}
+
+.header{position:sticky;top:0;z-index:30;background:rgba(255,251,246,.95);backdrop-filter:blur(4px);padding:20px 20px 12px;border-bottom:1px solid var(--line);}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;}
+.brand{display:flex;align-items:center;gap:8px;}
+.brand-logo{font-size:24px;}
+.brand-name{font-family:Georgia,serif;font-weight:600;font-size:18px;color:var(--sage-dark);}
+.stage-btn{font-size:12px;font-weight:800;padding:6px 12px;border-radius:999px;background:var(--sage-light);color:var(--sage-dark);white-space:nowrap;}
+.progress-track{width:100%;height:6px;border-radius:999px;background:var(--sage-light);overflow:hidden;}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--sage),var(--gold));transition:width .3s;}
+
+.bottom-nav{position:sticky;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding:8px;display:flex;justify-content:space-between;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:12px;}
+.nav-btn.active{background:var(--sage-light);}
+.nav-icon{font-size:18px;}
+.nav-label{font-size:10px;font-weight:800;color:var(--muted);}
+.nav-btn.active .nav-label{color:var(--sage-dark);}
+
+.tab-body{flex:1;}
+.section{padding:20px;display:flex;flex-direction:column;gap:16px;}
+
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--line);}
+.hero-card{border-radius:24px;padding:20px;color:#fff;background:linear-gradient(135deg,var(--sage),var(--sage-dark));}
+.hero-kicker{font-size:11px;font-weight:800;opacity:.8;margin:0 0 4px;}
+.hero-big{font-family:Georgia,serif;font-size:30px;font-weight:600;margin:0 0 4px;}
+.hero-sub{font-size:14px;opacity:.9;margin:0;}
+
+.badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--blush);color:var(--blush-dark);}
+.card-title{font-weight:800;font-size:15px;margin:8px 0 4px;color:var(--ink);}
+.card-body{font-size:14px;line-height:1.6;color:var(--muted);margin:0;}
+.link-btn{font-size:12px;font-weight:800;color:var(--sage);margin-top:10px;display:inline-block;}
+
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.quick-btn{background:#fff;border-radius:16px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--line);}
+.quick-emoji{font-size:20px;margin-bottom:4px;}
+.quick-label{font-size:11px;font-weight:800;color:var(--ink);}
+
+.ask-cta{border-radius:16px;padding:16px;display:flex;gap:12px;align-items:center;background:var(--gold);text-align:left;width:100%;}
+.ask-cta-title{display:block;font-weight:800;color:#fff;font-size:14px;}
+.ask-cta-sub{display:block;color:rgba(255,255,255,.9);font-size:12px;}
+.health-cta{background:#D97363;}
+
+.topic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.topic-btn{background:#fff;border-radius:16px;padding:16px 10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--line);}
+.topic-emoji{font-size:26px;margin-bottom:6px;}
+.topic-name{font-size:12px;font-weight:800;color:var(--ink);line-height:1.3;}
+
+.emergency-banner{border-radius:16px;padding:14px 16px;background:#FBE3E1;border:1px solid #F3B4AF;color:#9B2C2C;font-size:13px;font-weight:700;line-height:1.5;}
+
+.field-row-label{font-size:12px;font-weight:800;color:var(--ink);margin:0 0 6px;}
+.field-input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);font-size:14px;margin-bottom:14px;outline:none;background:#fff;}
+.flag-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:13px;color:var(--ink);line-height:1.4;}
+.flag-row input{margin-top:3px;flex-shrink:0;}
+
+.triage-card{border-radius:16px;padding:16px;margin-top:14px;}
+.triage-card.home{background:var(--sage-light);color:var(--sage-dark);}
+.triage-card.call{background:#FFF3D6;color:#8A6116;}
+.triage-card.emergency{background:#FBE3E1;color:#9B2C2C;}
+.triage-title{font-weight:800;font-size:15px;margin:0 0 4px;}
+.triage-detail{font-size:13px;line-height:1.5;margin:0;}
+
+.topic-detail-block{margin-bottom:16px;}
+.topic-detail-block:last-child{margin-bottom:0;}
+.topic-detail-label{font-size:11px;font-weight:800;margin:0 0 8px;}
+.topic-detail-list{margin:0;padding-left:18px;font-size:14px;line-height:1.6;color:var(--ink);}
+.topic-detail-list li{margin-bottom:6px;}
+.topic-detail-list li:last-child{margin-bottom:0;}
+
+.disclaimer{font-size:11px;text-align:center;color:var(--muted);line-height:1.6;padding-top:8px;}
+
+.pill-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.pill{flex-shrink:0;padding:6px 14px;border-radius:999px;font-size:13px;font-weight:800;white-space:nowrap;background:var(--sage-light);color:var(--sage);}
+.pill.active{background:var(--sage);color:#fff;}
+
+.week-dot{flex-shrink:0;width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:2px solid var(--line);background:#fff;color:var(--muted);}
+.week-dot.active{background:var(--sage);color:#fff;border-color:var(--sage);}
+.week-dot.done{background:var(--sage-light);color:var(--sage-dark);border-color:var(--sage-light);}
+
+.stage-hero{border-radius:24px;padding:24px;text-align:center;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--line);}
+.stage-hero-emoji{font-size:44px;margin-bottom:8px;}
+.stage-hero-title{font-family:Georgia,serif;font-size:24px;font-weight:600;color:var(--sage-dark);margin:0;}
+.stage-hero-sub{font-size:14px;color:var(--muted);margin:6px 0 0;}
+
+.detail-block{margin-bottom:16px;}
+.detail-block:last-child{margin-bottom:0;}
+.detail-label{font-size:11px;font-weight:800;color:var(--sage);margin:0 0 4px;}
+.detail-text{font-size:14px;line-height:1.6;color:var(--ink);margin:0;}
+
+.outline-btn{width:100%;padding:12px;border-radius:999px;font-weight:800;font-size:14px;border:2px solid var(--sage);color:var(--sage);background:#fff;}
+.outline-btn.on{background:var(--sage);color:#fff;}
+
+.check-row{width:100%;display:flex;align-items:center;gap:10px;text-align:left;padding:10px;border-radius:12px;}
+.check-row.on{background:var(--sage-light);}
+.check-box{width:20px;height:20px;border-radius:6px;border:2px solid #D8E3DB;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0;}
+.check-box.on{background:var(--sage);border-color:var(--sage);}
+.check-text{font-size:14px;color:var(--ink);}
+.cat-title{font-weight:800;font-size:14px;margin:0 0 12px;display:flex;align-items:center;gap:8px;color:var(--ink);}
+
+.product-row{display:flex;gap:12px;align-items:center;}
+.product-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--blush);flex-shrink:0;}
+.product-name{font-weight:800;font-size:14px;margin:0;color:var(--ink);}
+.product-why{font-size:12px;line-height:1.4;color:var(--muted);margin:2px 0 0;}
+.product-price{font-size:12px;font-weight:800;color:var(--sage-dark);margin:0 0 6px;text-align:right;}
+.view-btn{font-size:11px;font-weight:800;padding:6px 12px;border-radius:999px;color:#fff;background:var(--sage);}
+
+.chat-wrap{display:flex;flex-direction:column;min-height:70vh;padding:20px;}
+.chat-disclaimer{border-radius:16px;padding:12px;font-size:12px;line-height:1.5;background:var(--blush);color:var(--blush-dark);margin-bottom:16px;}
+.chat-messages{flex:1;display:flex;flex-direction:column;gap:12px;margin-bottom:16px;overflow-y:auto;}
+.msg{display:flex;}
+.msg.user{justify-content:flex-end;}
+.msg.bot{justify-content:flex-start;}
+.bubble{max-width:80%;border-radius:16px;padding:10px 14px;font-size:14px;line-height:1.5;}
+.bubble.user{background:var(--sage);color:#fff;}
+.bubble.bot{background:#fff;border:1px solid var(--line);color:var(--ink);}
+.chat-input-row{position:sticky;bottom:8px;display:flex;gap:8px;background:var(--bg);padding-top:8px;}
+.chat-input{flex:1;border-radius:999px;padding:10px 16px;font-size:14px;border:1px solid var(--line);outline:none;}
+.chat-send{width:40px;height:40px;border-radius:999px;background:var(--sage);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);z-index:50;pointer-events:none;}
+.toast-inner{background:var(--ink);color:#fff;font-size:14px;font-weight:700;padding:10px 18px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+
+.reset-note{text-align:center;font-size:10px;color:#C9BEB2;padding:8px 0;}
+
+.onboard-wrap{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:40px 24px;background:linear-gradient(180deg,var(--sage-light) 0%,var(--bg) 55%);}
+.onboard-header{text-align:center;margin-bottom:32px;}
+.onboard-logo{font-size:48px;margin-bottom:12px;}
+.onboard-title{font-family:Georgia,serif;font-size:30px;font-weight:600;color:var(--sage-dark);margin:0;}
+.onboard-sub{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.5;}
+.choice-heading{text-align:center;font-weight:800;font-size:14px;margin-bottom:14px;color:var(--ink);}
+.choice-btn{width:100%;background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--line);text-align:left;display:flex;align-items:center;gap:16px;margin-bottom:12px;}
+.choice-emoji{font-size:30px;}
+.choice-title{display:block;font-weight:800;color:var(--ink);}
+.choice-sub{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
+.back-btn{font-size:12px;font-weight:800;color:var(--sage);margin-bottom:16px;display:inline-block;}
+.slider-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--line);}
+.field-label{font-weight:800;font-size:13px;margin:0 0 4px;color:var(--ink);}
+.field-sub{font-size:11px;color:var(--muted);margin:0 0 20px;}
+.slider-label{text-align:center;margin-bottom:16px;}
+.slider-value{font-family:Georgia,serif;font-size:36px;font-weight:600;color:var(--sage-dark);}
+input[type=range]{width:100%;accent-color:#3F6D4E;height:20px;}
+.range-caption{display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:var(--muted);margin-top:4px;}
+.primary-btn{width:100%;color:#fff;font-weight:800;padding:14px;border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.04);background:var(--sage);margin-top:20px;font-size:15px;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:flex;align-items:flex-end;justify-content:center;}
+.modal-sheet{width:100%;max-width:480px;background:#fff;border-radius:24px 24px 0 0;padding:24px;}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.modal-title{font-weight:800;font-size:18px;color:var(--ink);margin:0;}
+.modal-close{font-size:14px;font-weight:800;color:var(--muted);}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* ============================== DATA ============================== */
+
+var PREGNANCY_WEEKS = [
+ {week:1, fruit:null, emoji:'✨', dev:"Pregnancy is dated from the first day of your last period, so weeks 1-2 come before conception actually happens.", body:"Your body is preparing for ovulation and possible conception.", tip:"Start (or continue) a prenatal vitamin with folic acid — it supports early neural development.", suggestion:"Book your first prenatal appointment if you haven't already."},
+ {week:2, fruit:null, emoji:'✨', dev:"Conception typically occurs around this time, when sperm fertilizes the egg.", body:"You likely won't notice symptoms yet — hormone levels are just beginning to shift.", tip:"Cut back on alcohol and start tracking how you're feeling day to day.", suggestion:"Confirm ovulation timing if you're tracking your cycle."},
+ {week:3, fruit:null, emoji:'✨', dev:"The fertilized egg travels to the uterus and begins implanting — the earliest building blocks of your baby are forming.", body:"Some people notice light spotting (implantation bleeding) or nothing at all.", tip:"A missed period is usually the first sign — a home test may pick it up soon.", suggestion:"If you get a positive test, schedule your first prenatal visit."},
+ {week:4, fruit:'Poppy seed', emoji:'🌱', dev:"Implantation is complete and the placenta and amniotic sac are starting to form.", body:"A home pregnancy test can likely detect pregnancy now.", tip:"Fatigue and tender breasts are common early signs — rest when you can.", suggestion:"Start a symptom log so you can share patterns with your provider."},
+ {week:5, fruit:'Sesame seed', emoji:'🌱', dev:"Your baby's neural tube — which becomes the brain and spinal cord — is starting to form.", body:"Morning sickness may begin as hCG hormone levels rise quickly.", tip:"Small, frequent meals can help ease early nausea.", suggestion:"Swap one caffeinated drink today for water or herbal tea."},
+ {week:6, fruit:'Lentil', emoji:'🫘', dev:"A heartbeat may be detectable by ultrasound, and tiny limb buds are appearing.", body:"Nausea, fatigue, and heightened smell are common around this week.", tip:"Ginger tea or ginger candies are a gentle option some people find helpful for nausea.", suggestion:"Ask your provider when to schedule your first ultrasound."},
+ {week:7, fruit:'Blueberry', emoji:'🫐', dev:"Your baby's brain is producing roughly 100 new neurons every minute.", body:"Your uterus is roughly doubling in size — though you likely aren't showing yet.", tip:"If nausea is intense, bland, room-temperature foods often sit better than hot meals.", suggestion:"Look into prenatal classes or apps to follow along week by week."},
+ {week:8, fruit:'Raspberry', emoji:'🍇', dev:"Fingers and toes are forming, and your baby is starting to make small, spontaneous movements you can't feel yet.", body:"You may need to urinate more often as your uterus presses on your bladder.", tip:"Loose, comfortable clothing can help as bloating sets in.", suggestion:"Start researching OB/GYNs or midwives if you haven't chosen a provider."},
+ {week:9, fruit:'Grape', emoji:'🍇', dev:"Your baby is now officially called a 'fetus,' and essential organs are all present, though still maturing.", body:"Mood swings are common as hormone levels continue to climb.", tip:"Be gentle with yourself — emotional ups and downs are a normal part of early pregnancy.", suggestion:"Share the news with a trusted friend or family member if you haven't yet."},
+ {week:10, fruit:'Kumquat', emoji:'🍊', dev:"Vital organs are formed and starting to function; tiny nails are beginning to form.", body:"The 'embryonic' period is ending soon — miscarriage risk drops noticeably after this point.", tip:"If nausea hasn't improved, ask your provider about safe treatment options.", suggestion:"Take a short walk today — light movement can ease fatigue."},
+ {week:11, fruit:'Fig', emoji:'🍈', dev:"Your baby can now open and close tiny fists and may even hiccup.", body:"Early symptoms like nausea may start to ease for many people around now.", tip:"This is a common window for first-trimester genetic screening — ask your provider about options.", suggestion:"Write down two or three questions for your next prenatal visit."},
+ {week:12, fruit:'Lime', emoji:'🍋', dev:"Nearly all of your baby's organs and systems have formed and will now focus on growing and maturing.", body:"You're nearing the end of the first trimester — a milestone many people look forward to.", tip:"Energy often starts returning around now for many people.", suggestion:"Celebrate reaching the end of the first trimester — it's a real milestone."},
+ {week:13, fruit:'Pea pod', emoji:'🫛', dev:"Baby's vocal cords are forming and fingerprints are starting to develop.", body:"Welcome to the second trimester — often called the 'honeymoon phase' of pregnancy.", tip:"Many people find this a good window to start gentle prenatal exercise.", suggestion:"Ask your provider about a safe prenatal exercise routine."},
+ {week:14, fruit:'Lemon', emoji:'🍋', dev:"Your baby may start making facial expressions, like squinting or frowning.", body:"A visible bump may start to appear as your uterus rises out of your pelvis.", tip:"Round ligament pain — quick, sharp twinges near the belly — is common as your uterus grows.", suggestion:"Try a few maternity-friendly stretches to ease early aches."},
+ {week:15, fruit:'Apple', emoji:'🍎', dev:"Your baby can sense light, even though eyelids are still fused shut.", body:"Nasal congestion and occasional nosebleeds are common due to increased blood flow.", tip:"A cool-mist humidifier can help with pregnancy-related congestion.", suggestion:"Start browsing maternity clothes for the growing weeks ahead."},
+ {week:16, fruit:'Avocado', emoji:'🥑', dev:"Your baby's muscles and bones continue to strengthen, and tiny movements may soon become noticeable.", body:"Some people start feeling the first flutters of movement ('quickening') around now.", tip:"A pregnancy pillow can help you get more comfortable as side-sleeping becomes preferred.", suggestion:"Pay attention for early flutters — they can feel like little bubbles."},
+ {week:17, fruit:'Onion', emoji:'🧅', dev:"Your baby's skeleton is hardening from soft cartilage into bone.", body:"Your center of gravity is shifting, which can affect balance.", tip:"Supportive, flat shoes reduce strain as your balance shifts.", suggestion:"Look into scheduling your anatomy scan (usually around week 18-22)."},
+ {week:18, fruit:'Bell pepper', emoji:'🫑', dev:"Your baby's ears are in position and may begin responding to sounds from outside the womb.", body:"Many people feel consistent movement for the first time around this week.", tip:"Try talking or playing music near your belly — your baby may start to respond.", suggestion:"Schedule your mid-pregnancy anatomy ultrasound if you haven't."},
+ {week:19, fruit:'Tomato', emoji:'🍅', dev:"A protective waxy coating called vernix caseosa begins covering your baby's skin.", body:"Backaches and stretch marks may start appearing as your belly grows.", tip:"A supportive belly band can ease lower back strain.", suggestion:"Moisturize your belly daily to help with skin comfort as it stretches."},
+ {week:20, fruit:'Banana', emoji:'🍌', dev:"You're halfway there! Your baby is swallowing more, which helps develop the digestive system.", body:"This is a common week for the detailed anatomy ultrasound.", tip:"If you want to know the sex, this scan is often the moment you'll find out.", suggestion:"Mark the halfway point — take a bump photo if you're keeping a journal."},
+ {week:21, fruit:'Carrot', emoji:'🥕', dev:"Your baby's movements are becoming stronger and more coordinated — kicks may be easier to feel.", body:"Increased appetite is common as your baby's growth accelerates.", tip:"Focus on protein and iron-rich foods to support your baby's rapid growth.", suggestion:"Keep a simple kick log to get familiar with your baby's active times."},
+ {week:22, fruit:'Mango', emoji:'🥭', dev:"Your baby's sense of touch is developing — they may grasp their own umbilical cord.", body:"Leg cramps, especially at night, become more common.", tip:"Stretching your calves before bed can help reduce nighttime leg cramps.", suggestion:"Stay well hydrated throughout the day to help ease cramping."},
+ {week:23, fruit:'Grapefruit', emoji:'🍊', dev:"Your baby's hearing is sharpening — loud noises may cause a startle response.", body:"Braxton Hicks contractions (practice contractions) may start.", tip:"Braxton Hicks are usually irregular and painless — mention any concerning patterns to your provider.", suggestion:"Start thinking about birth class options if you're interested."},
+ {week:24, fruit:'Ear of corn', emoji:'🌽', dev:"This week marks 'viability' — a major medical milestone for babies born prematurely from this point.", body:"You may be scheduled for a glucose screening soon to check for gestational diabetes.", tip:"Continue regular movement — walking is a great low-impact option this trimester.", suggestion:"Ask your provider what to expect from the upcoming glucose screening."},
+ {week:25, fruit:'Rutabaga', emoji:'🥔', dev:"Your baby is developing a regular pattern of sleeping and waking that you may start to notice.", body:"Hemorrhoids and varicose veins can appear due to increased blood volume and pressure.", tip:"Elevating your feet when sitting can help with swelling and circulation.", suggestion:"Notice your baby's active and quiet times — they often continue after birth."},
+ {week:26, fruit:'Kale (bunch)', emoji:'🥬', dev:"Your baby's eyes are beginning to open, and eyelashes are forming.", body:"The third trimester is approaching — energy levels can dip as your body works harder.", tip:"Prioritize rest — an afternoon lie-down can make a real difference in energy.", suggestion:"Start a simple hospital-bag checklist to fill in over the coming weeks."},
+ {week:27, fruit:'Cauliflower', emoji:'🥦', dev:"Your baby's brain tissue is developing rapidly and lungs are practicing breathing motions.", body:"You've reached the final week of the second trimester!", tip:"Continue prenatal vitamins with DHA to support your baby's brain development.", suggestion:"Take a moment to reflect on the second trimester before the final stretch begins."},
+ {week:28, fruit:'Eggplant', emoji:'🍆', dev:"Welcome to the third trimester — your baby can now blink and may have regular sleep cycles.", body:"Your provider may switch to more frequent appointments from here on.", tip:"Sleeping on your side, with a pillow between your knees, is often most comfortable now.", suggestion:"Start your third-trimester appointment schedule with your provider."},
+ {week:29, fruit:'Butternut squash', emoji:'🎃', dev:"Your baby's muscles and lungs continue maturing, and movements are getting stronger.", body:"Shortness of breath is common as your uterus pushes up against your diaphragm.", tip:"Sitting up straight and taking slow, deep breaths can help with breathlessness.", suggestion:"Practice a few relaxed breathing exercises — they can help during labor too."},
+ {week:30, fruit:'Cabbage', emoji:'🥬', dev:"Your baby's brain is developing billions of neurons, and eyesight continues to sharpen.", body:"Increased trips to the bathroom return as your baby drops lower.", tip:"Continue to track fetal movement daily — consistency matters more than exact counts.", suggestion:"Pack a couple of hospital bag items each week rather than all at once."},
+ {week:31, fruit:'Coconut', emoji:'🥥', dev:"Your baby is rapidly gaining weight and practicing coordinated movements — stretching, kicking, and grasping.", body:"Sleep can become more difficult as your bump grows larger.", tip:"A pregnancy pillow or extra pillows for support can make side-sleeping easier.", suggestion:"Consider a registry or checklist for essential newborn items."},
+ {week:32, fruit:'Jicama', emoji:'🥔', dev:"Your baby's bones are fully formed, though still soft and flexible for the journey through birth.", body:"Backaches and pelvic pressure often increase as your baby grows.", tip:"A warm (not hot) bath or a heating pad on your lower back may offer relief.", suggestion:"Finalize your birth plan preferences to discuss with your provider."},
+ {week:33, fruit:'Pineapple', emoji:'🍍', dev:"Your baby's immune system is developing, receiving antibodies from you.", body:"Frequent Braxton Hicks contractions may become more noticeable.", tip:"Stay hydrated — dehydration can sometimes trigger more frequent practice contractions.", suggestion:"Review the signs of true labor versus Braxton Hicks with your provider."},
+ {week:34, fruit:'Cantaloupe', emoji:'🍈', dev:"Your baby's central nervous system and lungs are maturing quickly.", body:"Your baby may 'drop' lower into your pelvis in preparation for birth.", tip:"Pelvic pressure and more frequent urination often increase once baby drops.", suggestion:"Double-check your hospital bag against a standard checklist."},
+ {week:35, fruit:'Honeydew melon', emoji:'🍈', dev:"Most of your baby's physical development is complete — the focus now is gaining weight.", body:"You may be asked about a Group B strep test around this time.", tip:"Rest when you can — good sleep now can help you feel more prepared later.", suggestion:"Confirm your route and timing plan for getting to the hospital or birth center."},
+ {week:36, fruit:'Romaine lettuce', emoji:'🥬', dev:"Your baby is likely settling into a head-down position in preparation for birth.", body:"Weekly prenatal visits typically begin around now.", tip:"Rest as much as possible — labor can begin at any time from here.", suggestion:"Pack your hospital bag fully if you haven't already."},
+ {week:37, fruit:'Swiss chard', emoji:'🥬', dev:"Your baby is now considered 'early term' — the lungs and brain continue maturing right up to birth.", body:"You may notice more pelvic pressure as your body prepares for labor.", tip:"Familiarize yourself with early labor signs so you feel ready when the time comes.", suggestion:"Review your birth plan and hospital essentials one more time."},
+ {week:38, fruit:'Leek', emoji:'🌱', dev:"Your baby continues to build fat stores that will help with temperature regulation after birth.", body:"You may lose your mucus plug or notice other early signs labor is approaching.", tip:"Rest and conserve energy — labor could start any day now.", suggestion:"Confirm your support person's plan for getting to you quickly when labor starts."},
+ {week:39, fruit:'Mini watermelon', emoji:'🍉', dev:"Your baby is considered 'full term' and organs are ready to function independently.", body:"You may feel a mix of excitement and impatience as your due date nears.", tip:"Gentle walking can help you feel active while you wait.", suggestion:"Rest, hydrate, and keep your phone charged — just in case."},
+ {week:40, fruit:'Small pumpkin', emoji:'🎃', dev:"Your due date has arrived — though only about 1 in 20 babies are born on their exact due date.", body:"It's completely normal to go past your due date; your provider will monitor you and your baby closely.", tip:"Try to stay patient — most babies arrive within a week or two of the due date either way.", suggestion:"Trust your care team's guidance on next steps if labor hasn't started yet."}
+];
+
+var POSTNATAL_CHECKPOINTS = [
+ {month:0, label:"Newborn (0-1 month)", summary:"Your newborn is adjusting to life outside the womb — sleeping most of the day, learning to feed, and beginning to recognize your voice and face.", tip:"Skin-to-skin contact helps regulate baby's temperature and heart rate, and supports bonding.", suggestion:"Try a few minutes of supervised tummy time while baby is awake and alert.",
+  milestones:{ physical:["Lifts head briefly during tummy time","Makes jerky, uncontrolled arm and leg movements","Grasps reflexively when palm is touched"],
+   cognitive:["Focuses on faces 8–12 inches away","Startles at loud sounds"],
+   language:["Makes small throaty sounds","Turns toward familiar voices"],
+   social:["Calms when picked up or spoken to softly","Brief moments of eye contact"] }},
+ {month:2, label:"2 months", summary:"Around 2 months, babies start to engage more with the world — smiling, cooing, and tracking faces and objects.", tip:"Talk, sing, and make faces during feeding and diaper changes — this builds early language connections.", suggestion:"Hold a high-contrast toy 8-10 inches from baby's face and slowly move it side to side.",
+  milestones:{ physical:["Holds head up when on tummy","Moves both arms and legs","Opens and shuts hands"],
+   cognitive:["Watches faces closely","Follows moving objects with eyes"],
+   language:["Coos and makes gurgling sounds","Turns head toward sounds"],
+   social:["Begins to smile at people","Can briefly calm self"] }},
+ {month:4, label:"4 months", summary:"By 4 months, many babies are more physically active and socially responsive — laughing, babbling, and reaching for objects.", tip:"Sleep patterns may shift around this age (often called the 4-month regression) — consistent routines can help.", suggestion:"Offer a soft rattle or textured toy for baby to grasp and explore.",
+  milestones:{ physical:["Holds head steady without support","Pushes up on arms during tummy time","Brings hands to mouth"],
+   cognitive:["Reaches for toys with one hand","Uses hands to explore"],
+   language:["Babbles with expression","Copies sounds"],
+   social:["Smiles spontaneously","Laughs"] }},
+ {month:6, label:"6 months", summary:"Around 6 months, babies often start solids, sit with support, and become more mobile and vocal.", tip:"If your pediatrician has given the go-ahead, this is often when solid foods are introduced — start with single ingredients.", suggestion:"Practice supported sitting with pillows around baby and offer a mirror for social play.",
+  milestones:{ physical:["Rolls in both directions","Begins to sit without support","Rocks back and forth on hands and knees"],
+   cognitive:["Looks for dropped objects","Puts things in mouth to explore"],
+   language:["Responds to own name","Makes sounds like 'ba', 'da', 'ma'"],
+   social:["Knows familiar faces","Enjoys looking in a mirror"] }},
+ {month:9, label:"9 months", summary:"9-month-olds are often on the move — crawling, pulling up, and beginning to understand simple words.", tip:"Babyproof cabinets and stairs now — mobility often outpaces expectations at this stage.", suggestion:"Play peekaboo to reinforce object permanence and build anticipation and language skills.",
+  milestones:{ physical:["Sits without support","Crawls or scoots","Pulls to stand"],
+   cognitive:["Watches the path of falling objects","Looks for hidden things (object permanence)"],
+   language:["Understands 'no'","Makes many sounds like 'mamama'"],
+   social:["Shy or clingy with strangers","Has favorite toys and people"] }},
+ {month:12, label:"12 months", summary:"Around their first birthday, many babies take first steps, say a word or two, and show clear personality and preferences.", tip:"Every baby walks and talks on their own timeline — the range of 'typical' at 12 months is wide.", suggestion:"Narrate your day out loud ('Now we're putting on socks!') to build vocabulary.",
+  milestones:{ physical:["Pulls to stand and may cruise along furniture","Takes a few steps or walks","Bangs objects together"],
+   cognitive:["Explores by shaking, banging, dropping","Finds hidden objects easily"],
+   language:["Says 'mama'/'dada' and maybe one other word","Waves bye-bye"],
+   social:["Shows fear or wariness in some situations","Hands you a book to read"] }},
+ {month:15, label:"15 months", summary:"15-month-olds are increasingly independent walkers and communicators, often imitating the people around them.", tip:"Offer simple choices ('red cup or blue cup?') to support growing independence.", suggestion:"Read together daily and pause to let baby point at or name pictures.",
+  milestones:{ physical:["Walks without holding on","Drinks from a cup","Climbs on and off furniture"],
+   cognitive:["Tries to use things correctly (phone, cup, book)","Stacks two small objects"],
+   language:["Says several single words","Follows a one-step direction"],
+   social:["Copies other children","Shows affection to familiar people"] }},
+ {month:18, label:"18 months", summary:"By 18 months, toddlers combine growing physical skills with early pretend play and a fast-expanding vocabulary.", tip:"Tantrums are a normal part of development as toddlers feel big emotions with limited words — staying calm helps them regulate.", suggestion:"Offer pretend-play props like a toy phone or doll to encourage imaginative play.",
+  milestones:{ physical:["Walks up steps holding a hand","Runs","Scribbles"],
+   cognitive:["Plays pretend, like feeding a doll","Points to show interest in something"],
+   language:["Says several words","Points to a body part when asked"],
+   social:["Has tantrums sometimes","Shows independence, may say 'no'"] }},
+ {month:24, label:"24 months", summary:"At 2 years, toddlers are combining words into short sentences, engaging in imaginative play, and beginning to show empathy.", tip:"Consistent routines and clear, simple language help toddlers feel secure amid rapid change.", suggestion:"Offer 2-step instructions ('pick up the block and put it in the box') to build listening skills.",
+  milestones:{ physical:["Kicks a ball","Runs fairly well","Climbs on furniture"],
+   cognitive:["Sorts shapes and colors","Follows two-step instructions"],
+   language:["Says 2-4 word sentences","Names familiar things in books"],
+   social:["Notices when others are hurt or upset","Plays alongside other children"] }}
+];
+
+function nearestCheckpoint(month){
+  var result = POSTNATAL_CHECKPOINTS[0];
+  for (var i=0;i<POSTNATAL_CHECKPOINTS.length;i++){ if (POSTNATAL_CHECKPOINTS[i].month <= month) result = POSTNATAL_CHECKPOINTS[i]; }
+  return result;
+}
+
+var PRODUCTS = {
+ pregnancy: {
+  1: [ {name:"Prenatal Vitamin with Folic Acid", why:"Supports your baby's early neural tube development.", icon:"💊", price:"$18"},
+       {name:"Ginger Chews", why:"A gentle option some people find helpful for early nausea.", icon:"🍬", price:"$8"},
+       {name:"Supportive Flat Shoes", why:"Comfort matters as your center of gravity begins to shift.", icon:"👟", price:"$45"} ],
+  2: [ {name:"Maternity Support Band", why:"Eases lower back and belly strain as your bump grows.", icon:"🎗️", price:"$24"},
+       {name:"Pregnancy Pillow", why:"Supports side-sleeping comfort as your bump grows.", icon:"🛏️", price:"$52"},
+       {name:"Belly Oil", why:"Helps keep skin comfortable as it stretches.", icon:"🧴", price:"$16"} ],
+  3: [ {name:"Hospital Bag Checklist Kit", why:"Stay organized as your due date approaches.", icon:"🎒", price:"$0"},
+       {name:"Nursing Pillow", why:"Sets you up for comfortable feeding once baby arrives.", icon:"🤱", price:"$36"},
+       {name:"Infant Car Seat", why:"Required for the ride home — worth installing ahead of time.", icon:"🚗", price:"$180"} ]
+ },
+ postnatal: {
+  "0-3": [ {name:"Muslin Swaddle Blankets", why:"Help newborns feel secure and sleep more soundly.", icon:"🧸", price:"$22"},
+           {name:"Bassinet or Co-Sleeper", why:"A safe, close-by sleep space for the early months.", icon:"🛏️", price:"$120"},
+           {name:"Burp Cloths (multi-pack)", why:"A newborn essential for feeding cleanup.", icon:"🧻", price:"$14"} ],
+  "4-8": [ {name:"Teething Toys", why:"Many babies start teething and mouthing objects around this stage.", icon:"🦷", price:"$12"},
+           {name:"High Chair", why:"Useful as you approach starting solid foods.", icon:"🪑", price:"$95"},
+           {name:"Baby-Safe Mirror", why:"Encourages social engagement during tummy time and play.", icon:"🪞", price:"$15"} ],
+  "9-14": [ {name:"Push Walker", why:"Supports early cruising and first steps.", icon:"🚶", price:"$40"},
+            {name:"Stacking Cups", why:"Builds fine motor and problem-solving skills.", icon:"🥤", price:"$10"},
+            {name:"Baby-Proofing Kit", why:"Cabinet locks and outlet covers for a newly mobile explorer.", icon:"🔒", price:"$20"} ],
+  "15-24": [ {name:"Board Books (set)", why:"Supports language development and shared reading time.", icon:"📚", price:"$18"},
+             {name:"Shape Sorter", why:"Builds problem-solving and hand-eye coordination.", icon:"🔷", price:"$16"},
+             {name:"Toddler Utensils", why:"Encourages growing independence at mealtime.", icon:"🍴", price:"$11"} ]
+ }
+};
+
+function productBucket(month){ if (month<=3) return "0-3"; if (month<=8) return "4-8"; if (month<=14) return "9-14"; return "15-24"; }
+function trimesterOf(week){ return week<=13?1:week<=27?2:3; }
+function article(word){ return /^[aeiou]/i.test(word) ? 'an' : 'a'; }
+
+/* ---- Medical Assistant (0-24 months) ---- */
+
+var MEDICAL_TOPICS = [
+ {id:'fever', icon:'🌡️', name:'Fever', overview:"A fever is usually a sign your baby's immune system is fighting an infection. How concerning it is depends heavily on your baby's age.",
+  homeCare:["Dress baby lightly and keep the room comfortably cool","Offer breast milk, formula, or water frequently to prevent dehydration","A lukewarm (not cold) sponge bath can help baby feel more comfortable"],
+  callDoctor:["Fever lasts more than 24 hours in a baby under 2, or more than 3 days in an older baby","Fever comes with fussiness, poor feeding, or fewer wet diapers than usual","You're simply unsure and want reassurance — that's always a good reason to call"],
+  emergency:["Any fever in a baby under 3 months old (100.4°F/38°C or higher)","Fever with difficulty breathing, a stiff neck, a rash that doesn't fade when pressed, or a seizure","Baby is very hard to wake or unusually limp"]},
+ {id:'cough', icon:'🤧', name:'Cough & Cold', overview:"Colds are extremely common in the first two years as babies build up immunity — most clear on their own within 1-2 weeks.",
+  homeCare:["Run a cool-mist humidifier in baby's room","Use saline drops and a bulb syringe to clear a stuffy nose before feeds and sleep","Keep baby well hydrated with frequent feeds"],
+  callDoctor:["Cough lasts more than a week or seems to be getting worse","Baby is under 3 months old and has any cold symptoms","Thick yellow or green nasal discharge lasting more than 10 days"],
+  emergency:["Fast, labored breathing, or ribs pulling in with each breath","Blue or gray tint to lips, face, or tongue","Persistent high fever combined with breathing difficulty"]},
+ {id:'vomiting', icon:'🤮', name:'Vomiting', overview:"Occasional spit-up is normal, but forceful or repeated vomiting is different and worth paying closer attention to.",
+  homeCare:["Offer smaller, more frequent feeds","Keep baby upright for 20-30 minutes after feeding","Watch closely for signs of dehydration over the next few hours"],
+  callDoctor:["Vomiting continues for more than 24 hours","Vomit looks yellow/green, or contains blood","Baby seems increasingly tired or is feeding poorly"],
+  emergency:["Forceful, projectile vomiting after most feeds (especially under 3 months)","Signs of dehydration: no wet diaper in 8+ hours, no tears, sunken soft spot","Vomiting with a swollen or very firm belly, or severe pain"]},
+ {id:'diarrhea', icon:'💧', name:'Diarrhea', overview:"Loose, watery stools more often than usual — the biggest concern with diarrhea in babies is dehydration.",
+  homeCare:["Continue breast milk or formula as normal","Offer extra fluids if your pediatrician has approved this for your baby's age","Watch diaper output closely"],
+  callDoctor:["Diarrhea lasts more than 2 days","Stool contains mucus or blood","Baby has a fever along with diarrhea"],
+  emergency:["Signs of dehydration: dry mouth, no tears, fewer than 3 wet diapers in 24 hours, sunken soft spot","Baby is unusually drowsy or difficult to wake","Severe abdominal pain or a swollen belly"]},
+ {id:'constipation', icon:'😣', name:'Constipation', overview:"Straining or infrequent stools are common, especially when starting solids — true constipation means hard, pellet-like stools.",
+  homeCare:["For babies on solids, offer high-fiber purees like pears, prunes, or peas","Gentle bicycle-leg movements or tummy massage can help","Make sure baby is getting enough fluids for their age"],
+  callDoctor:["No bowel movement for several days and baby seems uncomfortable","Hard, pellet-like stools happening regularly","Blood streaking on the outside of the stool"],
+  emergency:["Constipation with vomiting and a swollen, firm belly","Baby appears to be in significant pain and won't settle"]},
+ {id:'rash', icon:'🔴', name:'Skin Rash', overview:"Most baby rashes (like baby acne, heat rash, or mild eczema) are harmless and resolve with simple care.",
+  homeCare:["Keep the area clean and dry, and avoid harsh soaps or lotions","For diaper rash, increase air time and change diapers frequently","Dress baby in breathable, loose-fitting fabrics"],
+  callDoctor:["Rash doesn't improve after a few days of home care","Rash is spreading, blistering, or oozing","Diaper rash with raw, broken skin"],
+  emergency:["A rash that doesn't fade or turn white when you press on it (especially with fever)","Rash with difficulty breathing or swelling of the face/lips, or hives spreading quickly","Rash with high fever and baby seems very unwell"]},
+ {id:'ear', icon:'👂', name:'Ear Pulling', overview:"Tugging at ears can signal an ear infection, but it's just as often teething, self-soothing, or simple curiosity.",
+  homeCare:["Watch for other signs like fever, fussiness, or trouble sleeping","Comfort measures like gentle rocking or a warm (not hot) washcloth against the ear can help"],
+  callDoctor:["Ear pulling combined with fever, fussiness, or trouble sleeping for more than a day","Fluid or discharge draining from the ear","Baby seems to be in pain when lying down"],
+  emergency:["Ear discharge that is bloody or foul-smelling, along with high fever","Sudden severe pain plus swelling around the ear"]},
+ {id:'congestion', icon:'👃', name:'Nasal Congestion', overview:"Newborns are naturally congested — they're used to fluid in the womb and are nose breathers, so some snuffliness is very normal.",
+  homeCare:["Saline drops followed by gentle bulb suction before feeds and sleep","A cool-mist humidifier can ease congestion overnight","Keep feeds calm and unhurried if breathing sounds a little noisy"],
+  callDoctor:["Congestion interferes with feeding for more than a day or two","Thick discolored discharge lasting more than 10 days"],
+  emergency:["Congestion severe enough to cause visible breathing difficulty","Blue or gray tint around lips or face"]},
+ {id:'teething', icon:'🦷', name:'Teething', overview:"Teething usually starts between 4-7 months and can cause drooling, gum swelling, and mild irritability — it does not typically cause high fever.",
+  homeCare:["Offer a clean, chilled (not frozen) teething ring to chew on","Gently rub baby's gums with a clean finger","Wipe drool frequently to prevent skin irritation"],
+  callDoctor:["Fever above 100.4°F — teething alone rarely causes true fever, so it's worth ruling out other causes","Baby seems unusually distressed or isn't feeding well for more than a day"],
+  emergency:["High fever, diarrhea, or rash — these aren't typical teething symptoms and should be evaluated"]},
+ {id:'colic', icon:'😭', name:'Excessive Crying', overview:"Frequent, intense crying — often in the evening — is common in the first few months and usually improves by 3-4 months.",
+  homeCare:["Try swaddling, gentle motion (rocking, walking, car rides), or white noise","Check the basics first: hunger, a wet diaper, tiredness, or wanting to be held","It's okay to place baby safely in the crib and take a short break if you feel overwhelmed"],
+  callDoctor:["Crying seems different than usual, or is paired with fever, vomiting, or reduced wet diapers","Crying is significantly affecting your ability to cope — support is available and you deserve it"],
+  emergency:["Crying with a rigid or swollen belly, arching in pain, or blood in stool","If you're ever afraid you might harm your baby out of frustration — put baby down somewhere safe and call for help immediately"]},
+ {id:'jaundice', icon:'🟡', name:'Jaundice', overview:"A yellowish tint to the skin or eyes is common in the first week of life as a newborn's liver matures — most cases are mild and resolve on their own.",
+  homeCare:["Frequent feeding helps clear bilirubin from the body","Monitor the color in natural daylight, checking face, chest, and eyes"],
+  callDoctor:["Yellowing spreads to the arms, legs, or belly","Jaundice is still present after 2 weeks of age"],
+  emergency:["Baby is very hard to wake, feeding poorly, or unusually floppy","Yellowing appears in the first 24 hours of life, or skin looks deep yellow/orange"]},
+ {id:'feeding', icon:'🍼', name:'Poor Feeding', overview:"A single missed or short feed usually isn't a concern, but a pattern of poor feeding is worth paying attention to.",
+  homeCare:["Try feeding in a calm, quiet space with fewer distractions","Offer smaller, more frequent feeds if baby seems overwhelmed by larger volumes"],
+  callDoctor:["Baby is consistently feeding less than usual for more than a day","Fewer wet diapers than expected for their age","Baby seems unusually sleepy at feeding times"],
+  emergency:["Baby refuses to feed entirely for more than one feeding cycle combined with lethargy","Signs of dehydration: no wet diaper in 8+ hours, sunken soft spot, no tears when crying"]}
+];
+
+var FEVER_FLAGS = [
+ {key:'breathing', label:'Trouble breathing, grunting, or breathing unusually fast'},
+ {key:'blue', label:'Blue or gray lips, face, or tongue'},
+ {key:'unresponsive', label:'Very hard to wake, or unusually limp'},
+ {key:'neck', label:'Stiff neck'},
+ {key:'rash', label:"A rash that doesn't fade when you press on it"},
+ {key:'dehydration', label:'Fewer than 3 wet diapers in 24 hours'},
+ {key:'crying', label:'Inconsolable crying for more than 2 hours'},
+ {key:'seizure', label:'A seizure or convulsion'}
+];
+
+function feverTriage(ageMonths, tempF, flags){
+  if (flags && flags.length > 0){
+    return {level:'emergency', title:"Seek emergency care now", detail:"Call 911 (or your local emergency number) or go to the nearest ER. The symptoms you selected — like breathing trouble, a rash that doesn't fade, or difficulty waking — can signal something serious and shouldn't wait."};
+  }
+  if (tempF == null || isNaN(tempF)){
+    return null;
+  }
+  if (tempF < 100.4){
+    return {level:'home', title:"No fever detected right now", detail:"Keep monitoring — babies' temperatures can change quickly. Recheck in a few hours or sooner if new symptoms appear."};
+  }
+  if (ageMonths == null || isNaN(ageMonths)) ageMonths = 2;
+  if (ageMonths < 3){
+    return {level:'emergency', title:"Seek care right away", detail:"Any fever of 100.4°F (38°C) or higher in a baby under 3 months old needs immediate medical attention — call your pediatrician or go to the ER now, even if baby otherwise seems okay."};
+  }
+  if (ageMonths < 6){
+    if (tempF >= 102) return {level:'call', title:"Call your pediatrician today", detail:"A fever of 102°F or higher at this age is worth a same-day call."};
+    return {level:'call', title:"Consider calling your pediatrician", detail:"At this age, it's reasonable to call about any fever, especially if it lasts more than a few hours or baby seems unwell."};
+  }
+  if (tempF >= 104){
+    return {level:'emergency', title:"Seek care right away", detail:"A fever of 104°F (40°C) or higher warrants prompt medical attention — call your pediatrician now or go to urgent care/the ER."};
+  }
+  if (tempF >= 102){
+    return {level:'call', title:"Call your pediatrician today", detail:"Especially if baby seems uncomfortable, isn't drinking well, or the fever lasts more than a day."};
+  }
+  return {level:'home', title:"Usually manageable at home for now", detail:"Keep baby comfortable and hydrated. Call your pediatrician if the fever lasts more than 2-3 days, climbs higher, or baby seems increasingly unwell."};
+}
+
+function getGuidanceFeed(mode, value){
+  if (mode === 'pregnancy'){
+    var w = value, tri = trimesterOf(w), wk = PREGNANCY_WEEKS[w-1];
+    var feed = [
+      {category:"Development", source:"Week-by-week tracking", title:"Week "+w+": What's happening", body: wk.dev},
+      {category:"Your Body", source:"General prenatal guidance", title:"Changes you might notice", body: wk.body},
+      {category:"Wellness Tip", source:"General prenatal guidance", title:"Today's tip", body: wk.tip}
+    ];
+    if (tri===1) feed.push({category:"Nutrition", source:"General prenatal guidance", title:"Fueling the first trimester", body:"Focus on folate, iron, and staying hydrated — small, frequent meals count if nausea makes big meals hard."});
+    if (tri===2) feed.push({category:"Preparation", source:"General prenatal guidance", title:"Getting ready ahead", body:"This is a great window to research birth classes, pediatricians, and your hospital or birth center's policies."});
+    if (tri===3) feed.push({category:"Preparation", source:"General prenatal guidance", title:"Countdown to birth", body:"Use these weeks to finalize your birth plan, pack your hospital bag, and rest as much as you can."});
+    feed.push({category:"Emotional Wellness", source:"General guidance", title:"You're doing great", body:"It's normal to feel a mix of excitement and anxiety. Talking with your provider, partner, or other first-time moms can help."});
+    return feed;
+  } else {
+    var m = value, cp = nearestCheckpoint(m);
+    return [
+      {category:"Development", source:"CDC-informed milestones", title:"Month "+m+": what's typical", body: cp.summary},
+      {category:"Wellness Tip", source:"General guidance", title:"Today's tip", body: cp.tip},
+      {category:"Sleep", source:"General guidance", title:"Sleep check-in", body:"Every baby's sleep is different — focus on a consistent, calming routine rather than a strict schedule at this age."},
+      {category:"Feeding", source:"General guidance", title:"Feeding check-in", body: m<6 ? "Breast milk or formula meets all of your baby's nutritional needs at this stage." : "As solids continue, keep offering variety — repeated exposure helps babies accept new tastes."},
+      {category:"Safety", source:"General guidance", title:"Safety reminder", body: m<12 ? "Always place baby on their back to sleep, on a firm surface, with nothing else in the crib." : "As your toddler becomes more mobile, recheck your home for new fall or choking hazards."}
+    ];
+  }
+}
+
+function getChatResponse(question, mode, value){
+  var q = question.toLowerCase();
+  var stageLabel = mode==='pregnancy' ? ("week "+value+" of pregnancy") : (value+" month"+(value===1?"":"s")+" old");
+  if (/sleep/.test(q)) {
+    return mode==='pregnancy'
+      ? "Sleep can get tricky as your bump grows — side-sleeping with a pillow between your knees is usually most comfortable. If it's really disrupting your rest, mention it at your next appointment."
+      : "Every baby's sleep is different. Focus on a calm, consistent bedtime routine rather than a fixed schedule. For safety, always place baby on their back on a firm, bare surface.";
+  }
+  if (/feed|eat|food|milk|nurs/.test(q)) {
+    return mode==='pregnancy'
+      ? "Small, frequent meals with protein, fiber, and plenty of water tend to work well throughout pregnancy — needs shift a bit by trimester, so it's worth checking in with your provider."
+      : (value<6 ? "Breast milk or formula covers all of your baby's nutrition needs right now — solids typically start around 6 months, based on your pediatrician's guidance." : "Keep offering a variety of foods and textures — it can take many tries before a new food is accepted, and that's completely normal.");
+  }
+  if (/milestone|develop|normal|behind|walk|talk/.test(q)) {
+    return "Every baby (and pregnancy) develops at its own pace — there's a wide range of \"typical\" at "+stageLabel+". Check the Track tab for what's common right now, and if anything feels off to you, that instinct is worth bringing to your provider.";
+  }
+  if (/anxious|worried|scared|overwhelm|anxiety|stress/.test(q)) {
+    return "It's really common to feel this way — you're not alone, and it doesn't mean anything is wrong. Try naming the specific worry, and consider bringing it to your provider, partner, or another first-time mom who gets it.";
+  }
+  if (/product|buy|need|recommend|shop/.test(q)) {
+    return "Head over to the Act tab — I've curated a few essentials for exactly where you are right now, along with why each one matters at this stage.";
+  }
+  return "Good question. Based on where you are ("+stageLabel+"), I'd start with the Learn tab for personalized guidance, or the Track tab to see what's typical right now. (This is a prototype, so my replies are simulated — the full version would use AI grounded in trusted medical sources like the CDC, AAP, and WHO.)";
+}
+
+/* ============================== STATE ============================== */
+
+var state = {
+  mode: null, value: null, tab: 'home', showSwitcher: false,
+  tracked: {}, checks: {}, saved: {}, viewValue: null,
+  learnFilter: 'All', chatMessages: [],
+  healthTopic: null, feverAge: null, feverTemp: '', feverFlags: {}, feverResult: null
+};
+var obMode = null, obValue = 12;
+var swMode = null, swValue = null;
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+
+/* ============================== VIEWS ============================== */
+
+function onboardingView(){
+  if (!obMode){
+    return '' +
+    '<div class="onboard-wrap fade-up">' +
+      '<div class="onboard-header">' +
+        '<div class="onboard-logo">🌸</div>' +
+        '<p class="onboard-title">BumpToBloom</p>' +
+        '<p class="onboard-sub">A trusted, personalized companion — guiding first-time moms from pregnancy through your child\'s first two years.</p>' +
+      '</div>' +
+      '<p class="choice-heading">Where are you in your journey?</p>' +
+      '<button class="choice-btn" data-act="choose-mode" data-arg="pregnancy">' +
+        '<span class="choice-emoji">🤰</span>' +
+        '<span><span class="choice-title">I\'m expecting</span><span class="choice-sub">Track your pregnancy week by week</span></span>' +
+      '</button>' +
+      '<button class="choice-btn" data-act="choose-mode" data-arg="postnatal">' +
+        '<span class="choice-emoji">👶</span>' +
+        '<span><span class="choice-title">My baby is here</span><span class="choice-sub">Follow milestones from birth to age 2</span></span>' +
+      '</button>' +
+    '</div>';
+  }
+  var max = obMode==='pregnancy' ? 40 : 24;
+  var label = obMode==='pregnancy' ? ("Week "+obValue) : (obValue===0 ? "Newborn" : (obValue+" month"+(obValue===1?"":"s")));
+  return '' +
+  '<div class="onboard-wrap fade-up">' +
+    '<button class="back-btn" data-act="onboard-back">← Back</button>' +
+    '<div class="slider-card">' +
+      '<p class="field-label">' + (obMode==='pregnancy' ? "What week are you in?" : "How old is your baby?") + '</p>' +
+      '<p class="field-sub">You can change this anytime from your profile.</p>' +
+      '<div class="slider-label"><span class="slider-value" id="obSliderValue">' + label + '</span></div>' +
+      '<input type="range" id="obRange" min="0" max="' + max + '" value="' + obValue + '" oninput="obSliderInput(this.value)" />' +
+      '<div class="range-caption"><span>' + (obMode==='pregnancy'?"Week 0":"Newborn") + '</span><span>' + (obMode==='pregnancy'?"Week 40":"24 months") + '</span></div>' +
+    '</div>' +
+    '<button class="primary-btn" data-act="start-journey">Start my journey 🌱</button>' +
+  '</div>';
+}
+
+function obSliderInput(v){
+  v = Number(v);
+  obValue = v;
+  var label = document.getElementById('obSliderValue');
+  if (label) label.textContent = obMode==='pregnancy' ? ("Week "+v) : (v===0 ? "Newborn" : (v+" month"+(v===1?"":"s")));
+}
+function swSliderInput(v){
+  v = Number(v);
+  swValue = v;
+  var label = document.getElementById('swSliderValue');
+  if (label) label.textContent = swMode==='pregnancy' ? ("Week "+v) : (v===0 ? "Newborn" : (v+" month"+(v===1?"":"s")));
+}
+
+function switcherView(){
+  var max = swMode==='pregnancy' ? 40 : 24;
+  var label = swMode==='pregnancy' ? ("Week "+swValue) : (swValue===0 ? "Newborn" : (swValue+" month"+(swValue===1?"":"s")));
+  return '' +
+  '<div class="modal-overlay">' +
+    '<div class="app-shell" style="min-height:auto;box-shadow:none;">' +
+      '<div class="modal-sheet">' +
+        '<div class="modal-head"><p class="modal-title">Change stage</p><button class="modal-close" data-act="close-switcher">✕</button></div>' +
+        '<div class="pill-row" style="margin-bottom:20px;">' +
+          '<button class="pill ' + (swMode==='pregnancy'?'active':'') + '" data-act="switcher-mode" data-arg="pregnancy">Pregnancy</button>' +
+          '<button class="pill ' + (swMode==='postnatal'?'active':'') + '" data-act="switcher-mode" data-arg="postnatal">Baby is here</button>' +
+        '</div>' +
+        '<div class="slider-label"><span class="slider-value" id="swSliderValue">' + label + '</span></div>' +
+        '<input type="range" id="swRange" min="0" max="' + max + '" value="' + swValue + '" oninput="swSliderInput(this.value)" />' +
+        '<button class="primary-btn" data-act="save-switcher">Save</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function headerView(){
+  var stageLabel = state.mode==='pregnancy' ? ("Week "+state.value+" of pregnancy") : (state.value===0 ? "Newborn" : (state.value+" month"+(state.value===1?"":"s")+" old"));
+  var pct = state.mode==='pregnancy' ? Math.min(100, Math.round((state.value/40)*100)) : Math.min(100, Math.round((state.value/24)*100));
+  return '' +
+  '<div class="header">' +
+    '<div class="header-top">' +
+      '<div class="brand"><span class="brand-logo">🌸</span><span class="brand-name">BumpToBloom</span></div>' +
+      '<button class="stage-btn" data-act="open-switcher">' + stageLabel + ' ✎</button>' +
+    '</div>' +
+    '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+  '</div>';
+}
+
+function bottomNavView(){
+  var items = [
+    {id:'home', label:'Home', icon:'🏠'},
+    {id:'track', label:'Track', icon:'🌱'},
+    {id:'health', label:'Health', icon:'🩺'},
+    {id:'learn', label:'Learn', icon:'💡'},
+    {id:'act', label:'Act', icon:'🛒'},
+    {id:'ask', label:'Ask', icon:'💬'}
+  ];
+  return '<div class="bottom-nav">' + items.map(function(it){
+    return '<button class="nav-btn ' + (state.tab===it.id?'active':'') + '" data-act="set-tab" data-arg="' + it.id + '">' +
+      '<span class="nav-icon">' + it.icon + '</span><span class="nav-label">' + it.label + '</span></button>';
+  }).join('') + '</div>';
+}
+
+function homeView(){
+  var feed = getGuidanceFeed(state.mode, state.value);
+  var stageBig = state.mode==='pregnancy' ? ("Week "+state.value) : (state.value===0 ? "Newborn" : (state.value+" mo"));
+  var sub;
+  if (state.mode==='pregnancy'){
+    var wk = PREGNANCY_WEEKS[state.value-1];
+    sub = wk.fruit ? ("Baby is about the size of "+article(wk.fruit)+" "+wk.fruit.toLowerCase()) : "Your journey is just beginning";
+  } else {
+    sub = nearestCheckpoint(state.value).label;
+  }
+  var top = feed[0];
+  return '' +
+  '<div class="section fade-up">' +
+    '<div class="hero-card">' +
+      '<p class="hero-kicker">' + (state.mode==='pregnancy'?'PREGNANCY':'YOUR BABY') + '</p>' +
+      '<p class="hero-big">' + stageBig + '</p>' +
+      '<p class="hero-sub">' + sub + '</p>' +
+    '</div>' +
+    '<div class="card">' +
+      '<span class="badge">PERSONALIZED FOR YOU</span>' +
+      '<p class="card-title">' + top.title + '</p>' +
+      '<p class="card-body">' + top.body + '</p>' +
+      '<button class="link-btn" data-act="set-tab" data-arg="learn">See more guidance →</button>' +
+    '</div>' +
+    '<div class="quick-grid" style="grid-template-columns:repeat(4,1fr);">' +
+      '<button class="quick-btn" data-act="set-tab" data-arg="track"><div class="quick-emoji">🌱</div><div class="quick-label">Track</div></button>' +
+      '<button class="quick-btn" data-act="set-tab" data-arg="health"><div class="quick-emoji">🩺</div><div class="quick-label">Health</div></button>' +
+      '<button class="quick-btn" data-act="set-tab" data-arg="learn"><div class="quick-emoji">💡</div><div class="quick-label">Learn</div></button>' +
+      '<button class="quick-btn" data-act="set-tab" data-arg="act"><div class="quick-emoji">🛒</div><div class="quick-label">Act</div></button>' +
+    '</div>' +
+    '<button class="ask-cta health-cta" data-act="set-tab" data-arg="health">' +
+      '<span style="font-size:24px;">🩺</span>' +
+      '<span><span class="ask-cta-title">Medical Assistant</span><span class="ask-cta-sub">Symptom guidance for babies 0-24 months</span></span>' +
+    '</button>' +
+    '<button class="ask-cta" data-act="set-tab" data-arg="ask">' +
+      '<span style="font-size:24px;">💬</span>' +
+      '<span><span class="ask-cta-title">Ask BumpToBloom</span><span class="ask-cta-sub">Get answers tailored to your exact stage</span></span>' +
+    '</button>' +
+    '<p class="disclaimer">BumpToBloom offers general educational information and isn\'t a substitute for professional medical advice. Always consult your healthcare provider.</p>' +
+  '</div>';
+}
+
+function trackView(){
+  var v = state.viewValue==null ? state.value : state.viewValue;
+  if (state.mode==='pregnancy'){
+    var wk = PREGNANCY_WEEKS[v-1];
+    var isTracked = !!state.tracked[v];
+    var reviewedCount = Object.keys(state.tracked).filter(function(k){ return state.tracked[k]; }).length;
+    var dots = PREGNANCY_WEEKS.map(function(w){
+      var cls = w.week===v ? 'active' : (state.tracked[w.week] ? 'done' : '');
+      return '<button class="week-dot ' + cls + '" data-act="set-view" data-arg="' + w.week + '">' + w.week + '</button>';
+    }).join('');
+    return '' +
+    '<div class="section fade-up">' +
+      '<div><p class="card-title" style="margin-top:0;">Smart Milestone Tracker</p><p class="card-body" style="margin:0;">' + reviewedCount + ' of 40 weeks reviewed</p></div>' +
+      '<div class="pill-row">' + dots + '</div>' +
+      '<div class="stage-hero"><div class="stage-hero-emoji">' + wk.emoji + '</div><p class="stage-hero-title">Week ' + wk.week + '</p>' +
+        (wk.fruit ? '<p class="stage-hero-sub">About the size of ' + article(wk.fruit) + ' <b>' + wk.fruit.toLowerCase() + '</b></p>' : '') + '</div>' +
+      '<div class="card">' +
+        '<div class="detail-block"><p class="detail-label">BABY\'S DEVELOPMENT</p><p class="detail-text">' + wk.dev + '</p></div>' +
+        '<div class="detail-block"><p class="detail-label">YOUR BODY</p><p class="detail-text">' + wk.body + '</p></div>' +
+        '<div class="detail-block"><p class="detail-label">TODAY\'S SUGGESTION</p><p class="detail-text">' + wk.suggestion + '</p></div>' +
+      '</div>' +
+      '<button class="outline-btn ' + (isTracked?'on':'') + '" data-act="toggle-tracked" data-arg="' + v + '">' + (isTracked?'✓ Marked as reviewed':'Mark this week as reviewed') + '</button>' +
+    '</div>';
+  } else {
+    var cp = nearestCheckpoint(v);
+    var months = []; for (var i=0;i<=24;i++) months.push(i);
+    var dots2 = months.map(function(m){
+      var cls = m===v ? 'active' : '';
+      return '<button class="week-dot ' + cls + '" data-act="set-view" data-arg="' + m + '">' + (m===0?'NB':m) + '</button>';
+    }).join('');
+    var cats = [ {key:'physical', label:'Physical', icon:'🏃'}, {key:'cognitive', label:'Cognitive', icon:'🧠'}, {key:'language', label:'Language', icon:'💬'}, {key:'social', label:'Social & Emotional', icon:'💗'} ];
+    var totalItems = 0, checkedCount = 0;
+    var catBlocks = cats.map(function(c){
+      var items = cp.milestones[c.key];
+      var rows = items.map(function(item, idx){
+        var key = v + '-' + c.key + '-' + idx;
+        var on = !!state.checks[key];
+        totalItems++; if (on) checkedCount++;
+        return '<button class="check-row ' + (on?'on':'') + '" data-act="toggle-check" data-arg="' + key + '">' +
+          '<span class="check-box ' + (on?'on':'') + '">' + (on?'✓':'') + '</span><span class="check-text">' + item + '</span></button>';
+      }).join('');
+      return '<div class="card"><p class="cat-title"><span>' + c.icon + '</span>' + c.label + '</p>' + rows + '</div>';
+    }).join('');
+    return '' +
+    '<div class="section fade-up">' +
+      '<div><p class="card-title" style="margin-top:0;">Smart Milestone Tracker</p><p class="card-body" id="checklistCount" style="margin:0;">' + checkedCount + ' of ' + totalItems + ' noticed — checklist based on ' + cp.label + '</p></div>' +
+      '<div class="pill-row">' + dots2 + '</div>' +
+      '<div class="card"><p class="detail-label">' + cp.label.toUpperCase() + ' — WHAT\'S TYPICAL</p><p class="detail-text">' + cp.summary + '</p></div>' +
+      catBlocks +
+      '<p class="disclaimer">Every child develops differently — this checklist is for general awareness, not diagnosis. Share any concerns with your pediatrician.</p>' +
+    '</div>';
+  }
+}
+
+function learnView(){
+  var feed = getGuidanceFeed(state.mode, state.value);
+  var categories = ['All'];
+  feed.forEach(function(f){ if (categories.indexOf(f.category)===-1) categories.push(f.category); });
+  var filter = state.learnFilter;
+  var shown = filter==='All' ? feed : feed.filter(function(f){ return f.category===filter; });
+  var pills = categories.map(function(c){
+    return '<button class="pill ' + (filter===c?'active':'') + '" data-act="set-filter" data-arg="' + c + '">' + c + '</button>';
+  }).join('');
+  var cards = shown.map(function(g){
+    var idx = feed.indexOf(g);
+    var isSaved = !!state.saved[g.title];
+    return '<div class="card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">' +
+        '<span class="badge">' + g.category.toUpperCase() + '</span>' +
+        '<button data-act="toggle-saved" data-arg="' + idx + '" style="font-size:18px;line-height:1;">' + (isSaved?'★':'☆') + '</button>' +
+      '</div>' +
+      '<p class="card-title" style="margin-top:0;">' + g.title + '</p>' +
+      '<p class="card-body" style="margin-bottom:8px;">' + g.body + '</p>' +
+      '<p style="font-size:10px;font-weight:800;color:var(--sand);margin:0;">Source: ' + g.source + '</p>' +
+    '</div>';
+  }).join('');
+  return '' +
+  '<div class="section fade-up">' +
+    '<p class="card-title" style="margin:0;">Personalized Guidance Feed</p>' +
+    '<div class="pill-row">' + pills + '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:12px;">' + cards + '</div>' +
+  '</div>';
+}
+
+function actView(){
+  var items = state.mode==='pregnancy' ? PRODUCTS.pregnancy[trimesterOf(state.value)] : PRODUCTS.postnatal[productBucket(state.value)];
+  var label = state.mode==='pregnancy' ? ("Trimester " + trimesterOf(state.value) + " essentials") : "Essentials for this stage";
+  var cards = items.map(function(p){
+    return '<div class="card product-row">' +
+      '<div class="product-icon">' + p.icon + '</div>' +
+      '<div style="flex:1;min-width:0;"><p class="product-name">' + p.name + '</p><p class="product-why">' + p.why + '</p></div>' +
+      '<div style="text-align:right;flex-shrink:0;"><p class="product-price">' + p.price + '</p>' +
+        '<button class="view-btn" data-act="view-product" data-arg="' + encodeURIComponent(p.name) + '">View</button></div>' +
+    '</div>';
+  }).join('');
+  return '' +
+  '<div class="section fade-up">' +
+    '<div><p class="card-title" style="margin-top:0;">Curated For You</p><p class="card-body" style="margin:0;">' + label + ' — sample picks for this prototype</p></div>' +
+    '<div style="display:flex;flex-direction:column;gap:12px;">' + cards + '</div>' +
+    '<p class="disclaimer">Sample recommendations for demo purposes — the full product would link to real retailers like Amazon and Target.</p>' +
+  '</div>';
+}
+
+function healthView(){
+  if (state.healthTopic){
+    var topic = null;
+    for (var i=0;i<MEDICAL_TOPICS.length;i++){ if (MEDICAL_TOPICS[i].id===state.healthTopic) topic = MEDICAL_TOPICS[i]; }
+    if (!topic) { state.healthTopic = null; return healthView(); }
+    function listBlock(label, items, cls){
+      return '<div class="topic-detail-block"><p class="topic-detail-label" style="color:' + cls + ';">' + label + '</p>' +
+        '<ul class="topic-detail-list">' + items.map(function(it){ return '<li>' + it + '</li>'; }).join('') + '</ul></div>';
+    }
+    return '' +
+    '<div class="section fade-up">' +
+      '<button class="link-btn" data-act="health-back" style="margin:0;">← All topics</button>' +
+      '<div class="stage-hero"><div class="stage-hero-emoji">' + topic.icon + '</div><p class="stage-hero-title">' + topic.name + '</p></div>' +
+      '<div class="card"><p class="card-body" style="margin:0;">' + topic.overview + '</p></div>' +
+      '<div class="card">' +
+        listBlock('USUALLY OKAY TO MANAGE AT HOME', topic.homeCare, 'var(--sage)') +
+        listBlock('CALL YOUR PEDIATRICIAN IF...', topic.callDoctor, '#B8860B') +
+        listBlock('SEEK EMERGENCY CARE IF...', topic.emergency, '#B23B33') +
+      '</div>' +
+      '<p class="disclaimer">This is general educational information, not a diagnosis. When in doubt, trust your instincts and call your pediatrician — it\'s always a good reason to call.</p>' +
+    '</div>';
+  }
+
+  var age = state.feverAge != null ? state.feverAge : (state.mode==='postnatal' ? state.value : 2);
+  var temp = state.feverTemp;
+  var result = state.feverResult;
+  var flagRows = FEVER_FLAGS.map(function(f){
+    var checked = !!state.feverFlags[f.key];
+    return '<label class="flag-row"><input type="checkbox" id="flag_' + f.key + '" ' + (checked?'checked':'') + ' />' + f.label + '</label>';
+  }).join('');
+  var resultHtml = '';
+  if (result){
+    resultHtml = '<div class="triage-card ' + result.level + '"><p class="triage-title">' + result.title + '</p><p class="triage-detail">' + result.detail + '</p></div>';
+  }
+  var topicCards = MEDICAL_TOPICS.map(function(t){
+    return '<button class="topic-btn" data-act="select-health-topic" data-arg="' + t.id + '"><div class="topic-emoji">' + t.icon + '</div><div class="topic-name">' + t.name + '</div></button>';
+  }).join('');
+
+  return '' +
+  '<div class="section fade-up">' +
+    '<div class="emergency-banner">🚨 If your baby is having trouble breathing, turning blue, unresponsive, or having a seizure — call 911 (or your local emergency number) right now, don\'t wait for guidance here.</div>' +
+    '<div class="card">' +
+      '<p class="card-title" style="margin-top:0;">Fever Checker</p>' +
+      '<p class="card-body" style="margin-bottom:16px;">Quick guidance based on your baby\'s age and temperature.</p>' +
+      '<p class="field-row-label">Baby\'s age (months)</p>' +
+      '<input type="number" id="feverAge" class="field-input" min="0" max="24" value="' + age + '" />' +
+      '<p class="field-row-label">Temperature (°F)</p>' +
+      '<input type="number" id="feverTemp" class="field-input" step="0.1" placeholder="e.g. 101.5" value="' + escapeHtml(temp) + '" />' +
+      '<p class="field-row-label">Also check any that apply:</p>' +
+      flagRows +
+      '<button class="primary-btn" data-act="check-fever" style="margin-top:16px;">Check</button>' +
+      resultHtml +
+    '</div>' +
+    '<div>' +
+      '<p class="card-title" style="margin:0 0 4px;">Symptom Guide</p>' +
+      '<p class="card-body" style="margin:0 0 12px;">Tap a topic for what\'s typical, home care, and when to call.</p>' +
+      '<div class="topic-grid">' + topicCards + '</div>' +
+    '</div>' +
+    '<p class="disclaimer">BumpToBloom\'s Medical Assistant offers general educational information for babies 0-24 months and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult your pediatrician with questions about your baby\'s health.</p>' +
+  '</div>';
+}
+
+function askView(){
+  if (state.chatMessages.length===0){
+    var greet = state.mode==='pregnancy'
+      ? ("Hi! I'm here to help with anything on your mind at week " + state.value + ". Ask me about sleep, feeding, symptoms, or what to expect next.")
+      : ("Hi! I'm here to help with anything on your mind now that your little one is " + (state.value===0?"a newborn":(state.value+" month"+(state.value===1?"":"s")+" old")) + ". Ask me about sleep, feeding, milestones, or what to expect next.");
+    state.chatMessages.push({from:'bot', text:greet});
+  }
+  var msgs = state.chatMessages.map(function(m){
+    return '<div class="msg ' + m.from + '"><div class="bubble ' + m.from + '">' + escapeHtml(m.text) + '</div></div>';
+  }).join('');
+  return '' +
+  '<div class="chat-wrap fade-up">' +
+    '<div class="chat-disclaimer">BumpToBloom\'s answers are simulated for this prototype and are for general information only — not a substitute for professional medical advice.</div>' +
+    '<div class="chat-messages" id="chatMessages">' + msgs + '</div>' +
+    '<div class="chat-input-row">' +
+      '<input class="chat-input" id="chatInput" placeholder="Ask about sleep, feeding, milestones..." onkeydown="if(event.key===\'Enter\'){chatSend();}" />' +
+      '<button class="chat-send" data-act="chat-send">➤</button>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ============================== RENDER + ACTIONS ============================== */
+
+function render(){
+  var root = document.getElementById('root');
+  if (!state.mode){
+    root.innerHTML = onboardingView();
+    return;
+  }
+  if (state.viewValue == null) state.viewValue = state.value;
+  var body = '';
+  if (state.tab==='home') body = homeView();
+  else if (state.tab==='track') body = trackView();
+  else if (state.tab==='learn') body = learnView();
+  else if (state.tab==='act') body = actView();
+  else if (state.tab==='health') body = healthView();
+  else if (state.tab==='ask') body = askView();
+
+  root.innerHTML =
+    '<div class="app-shell">' +
+      headerView() +
+      '<div class="tab-body">' + body + '</div>' +
+      bottomNavView() +
+      '<p class="reset-note">Prototype note: your data resets if you reload this page.</p>' +
+    '</div>' +
+    (state.showSwitcher ? switcherView() : '') +
+    '<div id="toast" class="toast"></div>';
+
+  if (state.tab==='ask') scrollChatToBottom();
+}
+
+function scrollChatToBottom(){
+  var c = document.getElementById('chatMessages');
+  if (c) c.scrollTop = c.scrollHeight;
+}
+
+function showToast(msg){
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.innerHTML = '<div class="toast-inner">' + escapeHtml(msg) + '</div>';
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(function(){ t.innerHTML=''; }, 1800);
+}
+
+function chatSend(){
+  var input = document.getElementById('chatInput');
+  if (!input) return;
+  var text = input.value.trim();
+  if (!text) return;
+  var reply = getChatResponse(text, state.mode, state.value);
+  state.chatMessages.push({from:'user', text:text});
+  state.chatMessages.push({from:'bot', text:reply});
+  render();
+}
+
+function handleAction(act, arg){
+  if (act==='choose-mode'){ obMode = arg; obValue = arg==='pregnancy' ? 12 : 2; render(); }
+  else if (act==='onboard-back'){ obMode = null; render(); }
+  else if (act==='start-journey'){
+    var range = document.getElementById('obRange');
+    var v = range ? Number(range.value) : obValue;
+    state.mode = obMode;
+    state.value = obMode==='pregnancy' ? Math.max(1, v) : v;
+    state.viewValue = state.value;
+    render();
+  }
+  else if (act==='set-tab'){ state.tab = arg; if (arg==='track') state.viewValue = state.value; render(); }
+  else if (act==='open-switcher'){ swMode = state.mode; swValue = state.value; state.showSwitcher = true; render(); }
+  else if (act==='close-switcher'){ state.showSwitcher = false; render(); }
+  else if (act==='switcher-mode'){ swMode = arg; swValue = arg==='pregnancy' ? 12 : 2; render(); }
+  else if (act==='save-switcher'){
+    var range2 = document.getElementById('swRange');
+    var v2 = range2 ? Number(range2.value) : swValue;
+    state.mode = swMode;
+    state.value = swMode==='pregnancy' ? Math.max(1, v2) : v2;
+    state.viewValue = state.value;
+    state.showSwitcher = false;
+    render();
+  }
+  else if (act==='toggle-tracked'){ var w = Number(arg); state.tracked[w] = !state.tracked[w]; render(); }
+  else if (act==='set-view'){ state.viewValue = Number(arg); render(); }
+  else if (act==='toggle-check'){ state.checks[arg] = !state.checks[arg]; render(); }
+  else if (act==='toggle-saved'){
+    var idx = Number(arg);
+    var feed = getGuidanceFeed(state.mode, state.value);
+    var title = feed[idx].title;
+    state.saved[title] = !state.saved[title];
+    render();
+  }
+  else if (act==='set-filter'){ state.learnFilter = arg; render(); }
+  else if (act==='view-product'){ showToast(decodeURIComponent(arg) + ' — added to your list ✓'); }
+  else if (act==='chat-send'){ chatSend(); }
+  else if (act==='select-health-topic'){ state.healthTopic = arg; render(); }
+  else if (act==='health-back'){ state.healthTopic = null; render(); }
+  else if (act==='check-fever'){
+    var ageInput = document.getElementById('feverAge');
+    var tempInput = document.getElementById('feverTemp');
+    var ageVal = ageInput && ageInput.value !== '' ? Number(ageInput.value) : null;
+    var tempVal = tempInput && tempInput.value !== '' ? Number(tempInput.value) : null;
+    var flags = [];
+    var flagsObj = {};
+    FEVER_FLAGS.forEach(function(f){
+      var cb = document.getElementById('flag_' + f.key);
+      if (cb && cb.checked) { flags.push(f.key); flagsObj[f.key] = true; }
+    });
+    state.feverAge = ageVal;
+    state.feverTemp = tempInput ? tempInput.value : '';
+    state.feverFlags = flagsObj;
+    state.feverResult = feverTriage(ageVal, tempVal, flags);
+    if (!state.feverResult){
+      showToast('Enter a temperature to get guidance');
+    } else {
+      render();
+    }
+  }
+}
+
+document.addEventListener('click', function(e){
+  var el = e.target.closest('[data-act]');
+  if (!el) return;
+  handleAction(el.getAttribute('data-act'), el.getAttribute('data-arg'));
+});
+
+render();
+</script>
+</body>
+</html>
